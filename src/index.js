@@ -1,26 +1,42 @@
+import 'bootstrap/js/src/modal';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import { isURL } from 'validator';
 import { watch } from 'melanke-watchjs';
-import axios from 'axios';
-
-const getRssFeed = (rssUrl) => {
-  const parser = new DOMParser();
-  return axios.get(`https://misty-bread-6389.jlarkov.workers.dev/?${rssUrl}`)
-    .then(response => parser.parseFromString(response.data, 'application/xml'));
-};
+import renderChannel from './renders';
+import { getRssFeed, parseData } from './utils';
 
 const main = () => {
   const state = {
+    updateInterval: 100000,
     inputRss: {
       valid: false,
       value: '',
     },
     feedList: {},
+    newsModal: {
+      active: false,
+      title: '',
+      description: '',
+    },
   };
 
   const rssInput = document.querySelector('[aria-describedby=submit-rss-button]');
   const rssSubmitButton = document.getElementById('submit-rss-button');
   const feedField = document.getElementById('feedfield');
+
+  const updateRssFeed = (url) => {
+    getRssFeed(url).then((data) => {
+      const {
+        channelLink, channelDescription, channelNews, channelTitle,
+      } = parseData(data);
+      state.feedList = {
+        ...state.feedList,
+        [channelLink]: { channelTitle, channelDescription, channelNews },
+      };
+      state.inputRss.value = '';
+    });
+    setTimeout(() => updateRssFeed(url), state.updateInterval);
+  };
 
   rssInput.addEventListener('input', (element) => {
     const link = element.target.value;
@@ -34,19 +50,22 @@ const main = () => {
   });
 
   rssSubmitButton.addEventListener('click', () => {
-    getRssFeed(state.inputRss.value).then((feed) => {
-      const channel = feed.querySelector('channel');
-      const channelLink = channel.querySelector('link').textContent;
-      const channelDescription = channel.querySelector('description').textContent;
-      const channelItems = channel.querySelectorAll('item');
-      const channelNews = [...channelItems].map((item) => {
-        const title = item.querySelector('title').textContent;
-        const link = item.querySelector('link').textContent;
-        return { title, link };
-      });
-      state.feedList = { ...state.feedList, [channelLink]: { channelDescription, channelNews } };
-      state.inputRss.value = '';
-    });
+    updateRssFeed(state.inputRss.value);
+  });
+
+  feedField.addEventListener('click', (element) => {
+    if (!(element.target.dataset.target === '#newsModal')) {
+      return;
+    }
+    state.newsModal.title = element.target.dataset.title;
+    state.newsModal.description = element.target.dataset.description;
+    state.newsModal.active = true;
+  });
+
+  const dismissButton = document.querySelector('[data-dismiss=modal]');
+
+  dismissButton.addEventListener('click', () => {
+    state.newsModal.active = false;
   });
 
   watch(state, 'inputRss', () => {
@@ -62,39 +81,18 @@ const main = () => {
   watch(state, 'feedList', () => {
     feedField.innerHTML = '';
     Object.keys(state.feedList).forEach((key) => {
-      const div = document.createElement('div');
-      div.classList.add('jumbotron', 'col-md-3');
-
-      const h2 = document.createElement('h3');
-      h2.classList.add('diplay-3');
-      h2.textContent = key;
-
-      const hr = document.createElement('hr');
-      hr.classList.add('my-3');
-
-      const p = document.createElement('p');
-      p.classList.add('lead');
-      p.textContent = state.feedList[key].channelDescription;
-
-      const ul = document.createElement('ul');
-
-      state.feedList[key].channelNews.forEach((item) => {
-        const li = document.createElement('li');
-        const a = document.createElement('a');
-        a.textContent = item.title;
-        a.setAttribute('href', item.link);
-
-        li.append(a);
-        ul.append(li);
-      });
-
-      div.append(h2);
-      div.append(p);
-      div.append(hr);
-      div.append(ul);
-
+      const div = renderChannel(state.feedList[key]);
       feedField.append(div);
     });
+  });
+
+  watch(state, 'newsModal', () => {
+    const modal = document.getElementById('newsModal');
+    if (!state.newsModal.active) {
+      return;
+    }
+    modal.querySelector('#newsModalLabel').textContent = state.newsModal.title;
+    modal.querySelector('#newsModalDescripiton').textContent = state.newsModal.description;
   });
 };
 
