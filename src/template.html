@@ -7,11 +7,14 @@
   </head>
   <body>
     <div class="row" id="feedfield"></div>
-    <div class="input-group mb-3 fixed-bottom">
-      <div class="input-group-prepend">
-        <button class="btn btn-primary" type="button" id="submit-rss-button" disabled>Submit</button>
+    <div class="fixed-bottom">
+      <div class="alert alert-warning fade" role="alert" id="inputAlert">This channel is already added to feed</div>
+      <div class="input-group mb-3 row-xs-12">
+        <div class="input-group-prepend">
+          <button class="btn btn-primary" type="button" id="submit-rss-button" disabled>Submit</button>
+        </div>
+        <input type="text" id="rssInput" class="form-control border border-warning" placeholder="Enter your text here" aria-label="Example text with button addon" aria-describedby="submit-rss-button">
       </div>
-      <input type="text" class="form-control border border-warning" placeholder="Enter your text here" aria-label="Example text with button addon" aria-describedby="submit-rss-button">
     </div>
     <div class="modal fade" id="newsModal" tabindex="-1" role="dialog" aria-labelledby="newsModalLabel" aria-hidden="true">
       <div class="modal-dialog" role="document">

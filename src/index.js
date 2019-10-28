@@ -2,55 +2,76 @@ import 'bootstrap/js/src/modal';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import { isURL } from 'validator';
 import { watch } from 'melanke-watchjs';
-import renderChannel from './renders';
+import renderChannel, { renderChannelNews } from './renders';
 import { getRssFeed, parseData } from './utils';
 
 const main = () => {
   const state = {
-    updateInterval: 100000,
+    updateInterval: 10000,
     inputRss: {
-      valid: false,
+      valid: 'invalid',
       value: '',
     },
     feedList: {},
     newsModal: {
-      active: false,
+      active: 'disabled',
       title: '',
       description: '',
     },
   };
 
-  const rssInput = document.querySelector('[aria-describedby=submit-rss-button]');
+  const rssInput = document.getElementById('rssInput');
   const rssSubmitButton = document.getElementById('submit-rss-button');
   const feedField = document.getElementById('feedfield');
 
   const updateRssFeed = (url) => {
-    getRssFeed(url).then((data) => {
-      const {
-        channelLink, channelDescription, channelNews, channelTitle,
-      } = parseData(data);
-      state.feedList = {
-        ...state.feedList,
-        [channelLink]: { channelTitle, channelDescription, channelNews },
-      };
-      state.inputRss.value = '';
-    });
-    setTimeout(() => updateRssFeed(url), state.updateInterval);
+    setTimeout(() => {
+      getRssFeed(url).then((data) => {
+        const { channelNews } = parseData(data);
+        const currentNews = state.feedList[url].channelNews;
+        channelNews.forEach((item) => {
+          if (currentNews.some(element => item.title === element.title)) {
+            return;
+          }
+          state.feedList[url].channelNews.push(item);
+          console.log(state.feedList[url].channelNews);
+        });
+      }).then(() => updateRssFeed(url));
+    }, state.updateInterval);
   };
 
   rssInput.addEventListener('input', (element) => {
-    const link = element.target.value;
-    if (isURL(link) && !Object.keys(state.feedList).includes(link)) {
-      state.inputRss.valid = true;
-      state.inputRss.value = link;
+    state.inputRss.value = element.target.value;
+    const url = state.inputRss.value;
+    if (isURL(url)) {
+      state.inputRss.valid = 'valid';
     } else {
-      state.inputRss.valid = false;
-      state.inputRss.value = '';
+      state.inputRss.valid = 'invalid';
     }
   });
 
   rssSubmitButton.addEventListener('click', () => {
-    updateRssFeed(state.inputRss.value);
+    const url = state.inputRss.value;
+    console.log(Object.keys(state.inputRss), url);
+    if (!Object.keys(state.feedList).includes(url)) {
+      state.inputRss.value = url;
+    } else {
+      state.inputRss.value = '';
+      state.inputRss.valid = 'repeat';
+      return;
+    }
+    
+    getRssFeed(url).then((data) => {
+      const {
+        channelDescription, channelNews, channelTitle, channelLink,
+      } = parseData(data);
+      state.feedList[url] = {
+        channelTitle, channelDescription, channelNews, channelLink,
+      };
+      console.log(state.feedList[url]);
+      updateRssFeed(url);
+    });
+    state.inputRss.value = '';
   });
 
   feedField.addEventListener('click', (element) => {
@@ -59,40 +80,69 @@ const main = () => {
     }
     state.newsModal.title = element.target.dataset.title;
     state.newsModal.description = element.target.dataset.description;
-    state.newsModal.active = true;
+    state.newsModal.active = 'active';
   });
 
-  const dismissButton = document.querySelector('[data-dismiss=modal]');
+  const dismissModalButton = document.querySelector('[data-dismiss=modal]');
 
-  dismissButton.addEventListener('click', () => {
-    state.newsModal.active = false;
+  dismissModalButton.addEventListener('click', () => {
+    state.newsModal.active = 'disabled';
   });
-
+  
   watch(state, 'inputRss', () => {
-    if (!state.inputRss.valid) {
-      rssSubmitButton.setAttribute('disabled', '');
-      rssInput.classList.add('border-warning');
-      return;
+    const alert = document.getElementById('inputAlert');
+    switch (state.inputRss.valid) {
+      case 'invalid':
+        rssSubmitButton.setAttribute('disabled', '');
+        rssInput.classList.add('border-warning');
+        break;
+      case 'valid':
+        rssSubmitButton.removeAttribute('disabled');
+        rssInput.classList.remove('border-warning');
+        break;
+      case 'repeat':
+        alert.classList.remove('fade');
+        alert.classList.add('show');
+        setTimeout(() => {
+          alert.classList.remove('show');
+          alert.classList.add('fade');
+        }, 5000);
+        break;
+      default:
+        break;
     }
-    rssSubmitButton.removeAttribute('disabled');
-    rssInput.classList.remove('border-warning');
   });
 
-  watch(state, 'feedList', () => {
-    feedField.innerHTML = '';
-    Object.keys(state.feedList).forEach((key) => {
-      const div = renderChannel(state.feedList[key]);
-      feedField.append(div);
+  watch(state, 'feedList', (prop, action, newvalue) => {
+    const newChannel = newvalue.added[0];
+    const renderedChannel = renderChannel(state.feedList[newChannel]);
+    feedField.prepend(renderedChannel);
+
+    const newsContainer = document.getElementById(state.feedList[newChannel].channelLink);
+    const newsField = newsContainer.querySelector('ul');
+
+    watch(state.feedList[newChannel], 'channelNews', (val1, val2, newNews) => {
+      const renderedNews = renderChannelNews(newNews);
+      newsField.prepend(renderedNews);
     });
+  }, 1, true);
+  
+  watch(state.inputRss, 'value', () => {
+    rssInput.value = state.inputRss.value;
   });
-
+  
   watch(state, 'newsModal', () => {
     const modal = document.getElementById('newsModal');
-    if (!state.newsModal.active) {
-      return;
+    switch (state.newsModal.active) {
+      case 'disabled':
+        break;
+      case 'active':
+        modal.querySelector('#newsModalLabel').textContent = state.newsModal.title;
+        modal.querySelector('#newsModalDescripiton').textContent = state.newsModal.description;
+        break;
+      default:
+        break;
     }
-    modal.querySelector('#newsModalLabel').textContent = state.newsModal.title;
-    modal.querySelector('#newsModalDescripiton').textContent = state.newsModal.description;
   });
 };
 
