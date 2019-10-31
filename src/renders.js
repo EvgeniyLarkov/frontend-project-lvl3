@@ -1,26 +1,31 @@
-export const renderChannelNews = (item) => {
-  const li = document.createElement('li');
+export const renderChannelNews = (data) => {
   const a = document.createElement('a');
+  a.textContent = data.title;
+  a.setAttribute('href', data.link);
+
+  const aWrapper = document.createElement('div');
+  aWrapper.classList.add('w-75');
+  aWrapper.append(a);
+
   const button = document.createElement('button');
-
-  a.textContent = item.title;
-  a.setAttribute('href', item.link);
-
-  button.classList.add('btn', 'btn-outline-primary', 'btn-sm');
+  button.classList.add('btn', 'btn-outline-primary', 'btn-sm', 'w-20', 'ml-auto');
   button.textContent = 'Show details';
   button.setAttribute('data-toggle', 'modal');
-  button.setAttribute('data-target', '#newsModal');
-  button.setAttribute('data-description', item.description);
-  button.setAttribute('data-title', item.title);
+  button.setAttribute('data-target', '#modalWindow');
+  button.setAttribute('data-description', data.description);
+  button.setAttribute('data-title', data.title);
 
-  li.append(a);
+  const li = document.createElement('li');
+  li.classList.add('list-group-item', 'd-flex', 'flex-row');
+  li.append(aWrapper);
   li.append(button);
+
   return li;
 };
 
-export default (data) => {
+export const renderChannel = (data) => {
   const div = document.createElement('div');
-  div.classList.add('jumbotron', 'col-md-3');
+  div.classList.add('jumbotron', 'col-md-4');
   div.setAttribute('id', data.channelLink);
 
   const h3 = document.createElement('h3');
@@ -34,6 +39,7 @@ export default (data) => {
   p.textContent = data.channelDescription;
 
   const ul = document.createElement('ul');
+  ul.classList.add('list-group');
   data.channelNews.forEach(item => ul.append(renderChannelNews(item)));
 
   div.append(h3);

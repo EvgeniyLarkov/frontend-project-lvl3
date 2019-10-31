@@ -6,26 +6,26 @@
     <title>RSS lint</title>
   </head>
   <body>
-    <div class="row" id="feedfield"></div>
+    <div class="container-fluid row" id="feedField"></div>
     <div class="fixed-bottom">
-      <div class="alert alert-warning fade" role="alert" id="inputAlert">This channel is already added to feed</div>
-      <div class="input-group mb-3 row-xs-12">
+      <div class="alert alert-warning fade" role="alert" id="alert"></div>
+      <div class="input-group">
         <div class="input-group-prepend">
-          <button class="btn btn-primary" type="button" id="submit-rss-button" disabled>Submit</button>
+          <button class="btn btn-primary" type="button" id="rssSubmitButton" disabled>Submit</button>
         </div>
-        <input type="text" id="rssInput" class="form-control border border-warning" placeholder="Enter your text here" aria-label="Example text with button addon" aria-describedby="submit-rss-button">
+        <input type="text" id="rssInput" class="form-control border border-warning" placeholder="Enter your text here" aria-describedby="rssSubmitButton">
       </div>
     </div>
-    <div class="modal fade" id="newsModal" tabindex="-1" role="dialog" aria-labelledby="newsModalLabel" aria-hidden="true">
+    <div class="modal fade" id="modalWindow" tabindex="-1" role="dialog" aria-labelledby="modalWindowLabel" aria-hidden="true">
       <div class="modal-dialog" role="document">
         <div class="modal-content">
           <div class="modal-header">
-            <h5 class="modal-title" id="newsModalLabel"></h5>
+            <h5 class="modal-title" id="modalWindowLabel"></h5>
             <button type="button" class="close" data-dismiss="modal" aria-label="Close">
               <span aria-hidden="true">&times;</span>
             </button>
           </div>
-          <div class="modal-body" id="newsModalDescripiton"></div>
+          <div class="modal-body" id="modalWindowDescripiton"></div>
         </div>
       </div>
     </div>
