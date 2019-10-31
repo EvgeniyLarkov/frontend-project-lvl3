@@ -17,17 +17,17 @@ export const parseData = (data) => {
     const link = item.querySelector('link');
     const description = item.querySelector('description');
     return {
-      [title.textContent]: title.textContent,
-      [link.textContent]: link.textContent,
-      [description.textContent]: description.textContent,
+      title: title.textContent,
+      link: link.textContent,
+      description: description.textContent,
     };
   });
 
   return {
-    [channelLink.textContent]: channelLink.textContent,
-    [channelDescription.textContent]: channelDescription.textContent,
+    channelLink: channelLink.textContent,
+    channelDescription: channelDescription.textContent,
     channelNews,
-    [channelTitle.textContent]: channelTitle.textContent,
+    channelTitle: channelTitle.textContent,
   };
 };
 
