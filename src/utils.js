@@ -8,19 +8,26 @@ export const parseData = (data) => {
 
   const feed = parser.parseFromString(data, 'application/xml');
   const channel = feed.querySelector('channel');
-  const channelLink = channel.querySelector('link').textContent;
-  const channelTitle = channel.querySelector('title').textContent;
-  const channelDescription = channel.querySelector('description').textContent;
+  const channelLink = channel.querySelector('link');
+  const channelTitle = channel.querySelector('title');
+  const channelDescription = channel.querySelector('description');
   const channelItems = channel.querySelectorAll('item');
   const channelNews = [...channelItems].map((item) => {
-    const title = item.querySelector('title').textContent;
-    const link = item.querySelector('link').textContent;
-    const description = item.querySelector('description').textContent;
-    return { title, link, description };
+    const title = item.querySelector('title');
+    const link = item.querySelector('link');
+    const description = item.querySelector('description');
+    return {
+      [title.textContent]: title.textContent,
+      [link.textContent]: link.textContent,
+      [description.textContent]: description.textContent,
+    };
   });
 
   return {
-    channelLink, channelDescription, channelNews, channelTitle,
+    [channelLink.textContent]: channelLink.textContent,
+    [channelDescription.textContent]: channelDescription.textContent,
+    channelNews,
+    [channelTitle.textContent]: channelTitle.textContent,
   };
 };
 

@@ -37,13 +37,15 @@ export const addChannelHandler = (state, newvalue) => {
 
 export const activateModalHandler = (state) => {
   const modalWindow = document.getElementById('modalWindow');
+  const modalWindowLabel = modalWindow.querySelector('#modalWindowLabel');
+  const modalWindowDescripiton = modalWindow.querySelector('#modalWindowDescripiton');
 
   switch (state.modalWindow.type) {
     case 'disabled':
       break;
     case 'active':
-      modalWindow.querySelector('#modalWindowLabel').textContent = state.modalWindow.title;
-      modalWindow.querySelector('#modalWindowDescripiton').textContent = state.modalWindow.description;
+      modalWindowLabel.textContent = state.modalWindow.title;
+      modalWindowDescripiton.textContent = state.modalWindow.description;
       break;
     default:
       break;
