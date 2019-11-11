@@ -2,6 +2,7 @@
   "name": "frontend-project-lvl3",
   "version": "0.0.1",
   "description": "",
+  "main": "./src",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/EvgeniyLarkov/frontend-project-lvl3.git"

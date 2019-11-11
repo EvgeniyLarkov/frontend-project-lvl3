@@ -1,4 +1,4 @@
-import { watch } from 'melanke-watchjs';
+/* eslint no-param-reassign: 0 */
 import { renderChannel, renderChannelNews } from './renders';
 
 export const inputFormHandler = (state) => {
@@ -21,18 +21,16 @@ export const inputFormHandler = (state) => {
 };
 
 export const addChannelHandler = (state, newvalue) => {
-  const newChannel = newvalue.added[0];
-  const renderedChannel = renderChannel(state.feedList[newChannel]);
+  const renderedChannel = renderChannel(newvalue);
   const feedField = document.getElementById('feedField');
   feedField.prepend(renderedChannel);
+};
 
-  const newsContainer = document.getElementById(state.feedList[newChannel].channelLink);
+export const addNewsHandler = (state, newvalue) => {
+  const newsContainer = document.getElementById(newvalue.parent);
   const newsField = newsContainer.querySelector('ul');
-
-  watch(state.feedList[newChannel], 'channelNews', (val1, val2, newNews) => {
-    const renderedNews = renderChannelNews(newNews);
-    newsField.prepend(renderedNews);
-  });
+  const renderedNews = renderChannelNews(newvalue);
+  newsField.prepend(renderedNews);
 };
 
 export const activateModalHandler = (state) => {
@@ -72,6 +70,5 @@ export const alertHandler = (state) => {
   alert.classList.add('show');
   setTimeout(() => {
     alert.classList.remove('show');
-    alert.classList.add('fade');
   }, 5000);
 };

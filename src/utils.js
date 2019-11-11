@@ -1,47 +1,21 @@
+/* eslint no-param-reassign: 0 */
 import axios from 'axios';
+import { isURL } from 'validator';
+import parseData from './parser';
 
 export const getRssFeed = rssUrl => axios.get(`https://misty-bread-6389.jlarkov.workers.dev/?${rssUrl}`)
   .then(response => response.data);
 
-export const parseData = (data) => {
-  const parser = new DOMParser();
-
-  const feed = parser.parseFromString(data, 'application/xml');
-  const channel = feed.querySelector('channel');
-  const channelLink = channel.querySelector('link');
-  const channelTitle = channel.querySelector('title');
-  const channelDescription = channel.querySelector('description');
-  const channelItems = channel.querySelectorAll('item');
-  const channelNews = [...channelItems].map((item) => {
-    const title = item.querySelector('title');
-    const link = item.querySelector('link');
-    const description = item.querySelector('description');
-    return {
-      title: title.textContent,
-      link: link.textContent,
-      description: description.textContent,
-    };
-  });
-
-  return {
-    channelLink: channelLink.textContent,
-    channelDescription: channelDescription.textContent,
-    channelNews,
-    channelTitle: channelTitle.textContent,
-  };
-};
-
-
-export const updateRssFeed = (state, url) => {
+export const updateRssFeed = (state, url, updateInterval) => {
   setTimeout(() => {
     getRssFeed(url).then((data) => {
       const { channelNews } = parseData(data);
-      const currentNews = state.feedList[url].channelNews;
       channelNews.forEach((item) => {
-        if (currentNews.some(element => item.title === element.title)) {
+        if (state.news.some(element => (item.parent === element.parent)
+         && (item.title === element.title))) {
           return;
         }
-        state.feedList[url].channelNews.push(item);
+        state.news.push(item);
       });
     })
       .then(() => updateRssFeed(state, url))
@@ -49,5 +23,8 @@ export const updateRssFeed = (state, url) => {
         state.alert.type = 'badnetwork';
         updateRssFeed(state, url);
       });
-  }, state.updateInterval);
+  }, updateInterval);
 };
+
+export const isValid = (state, link) => !state.feeds.find(item => item.channelUrl === link)
+  && isURL(link);

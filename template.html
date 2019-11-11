@@ -6,16 +6,20 @@
     <title>RSS lint</title>
   </head>
   <body>
-    <div class="container-fluid row" id="feedField"></div>
-    <div class="fixed-bottom">
-      <div class="alert alert-warning fade" role="alert" id="alert"></div>
-      <div class="input-group">
-        <div class="input-group-prepend">
-          <button class="btn btn-primary" type="button" id="rssSubmitButton" disabled>Submit</button>
+    <div class="jumbotron">
+      <h1 class="display-5">RSS feed aggregator</h1>
+      <hr class="my-4">
+      <form id="rssInputForm">
+        <div class="input-group">
+          <input type="text" id="rssInput" class="form-control border border-warning" placeholder="Enter your text here" aria-describedby="rssSubmitButton">
+          <div class="input-group-appepend">
+            <input class="btn btn-primary" type="submit" id="rssSubmitButton" value="Submit" disabled>
+          </div>
         </div>
-        <input type="text" id="rssInput" class="form-control border border-warning" placeholder="Enter your text here" aria-describedby="rssSubmitButton">
-      </div>
+      </form>
+      <div class="alert alert-warning fade" role="alert" id="alert"></div>
     </div>
+    <div class="container-fluid row" id="feedField"></div>
     <div class="modal fade" id="modalWindow" tabindex="-1" role="dialog" aria-labelledby="modalWindowLabel" aria-hidden="true">
       <div class="modal-dialog" role="document">
         <div class="modal-content">

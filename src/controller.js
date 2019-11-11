@@ -1,10 +1,12 @@
+/* eslint no-param-reassign: 0 */
 import { isURL } from 'validator';
-import { getRssFeed, parseData, updateRssFeed } from './utils';
+import { getRssFeed, updateRssFeed, isValid } from './utils';
+import parseData from './parser';
 
-export const addChannel = (state) => {
+export const addChannel = (state, updateInterval) => {
   const url = state.inputRss.value;
 
-  if (!Object.keys(state.feedList).includes(url)) {
+  if (isValid(state, url)) {
     state.inputRss.value = url;
   } else {
     state.inputRss.value = '';
@@ -16,10 +18,11 @@ export const addChannel = (state) => {
     const {
       channelDescription, channelNews, channelTitle, channelLink,
     } = parseData(data);
-    state.feedList[url] = {
-      channelTitle, channelDescription, channelNews, channelLink,
-    };
-    updateRssFeed(state, url);
+    state.feeds.push({
+      channelTitle, channelDescription, channelLink, channelUrl: url,
+    });
+    channelNews.forEach(item => state.news.push(item));
+    updateRssFeed(state, url, updateInterval);
   }).catch(() => {
     state.alert.type = 'notexist';
   });
