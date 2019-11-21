@@ -1,12 +1,24 @@
-/* eslint no-param-reassign: 0 */
+import i18next from 'i18next';
+import Backend from 'i18next-xhr-backend';
+import LanguageDetector from 'i18next-browser-languagedetector';
 import { renderChannel, renderChannelNews } from './renders';
 
-export const inputFormHandler = (state) => {
+i18next
+  .use(Backend)
+  .use(LanguageDetector)
+  .init({
+    fallbackLng: 'en',
+    backend: {
+      loadPath: `${__dirname}locales/{{lng}}/locale.json`,
+    },
+  });
+
+export const renderInputForm = (state) => {
   const rssInput = document.getElementById('rssInput');
   const rssSubmitButton = document.getElementById('rssSubmitButton');
-  rssInput.value = state.inputRss.value;
+  rssInput.value = state.validationProcess.value;
 
-  switch (state.inputRss.type) {
+  switch (state.validationProcess.state) {
     case 'invalid':
       rssSubmitButton.setAttribute('disabled', '');
       rssInput.classList.add('border-warning');
@@ -38,34 +50,21 @@ export const activateModalHandler = (state) => {
   const modalWindowLabel = modalWindow.querySelector('#modalWindowLabel');
   const modalWindowDescripiton = modalWindow.querySelector('#modalWindowDescripiton');
 
-  switch (state.modalWindow.type) {
+  switch (state.showNewsProcess.state) {
     case 'disabled':
       break;
-    case 'active':
-      modalWindowLabel.textContent = state.modalWindow.title;
-      modalWindowDescripiton.textContent = state.modalWindow.description;
+    case 'enabled':
+      modalWindowLabel.textContent = state.showNewsProcess.title;
+      modalWindowDescripiton.textContent = state.showNewsProcess.description;
       break;
     default:
       break;
   }
 };
 
-export const alertHandler = (state) => {
+export const renderAlert = (error) => {
   const alert = document.getElementById('alert');
-
-  switch (state.alert.type) {
-    case 'notexist':
-      alert.textContent = 'URL is invalid or do not exist';
-      break;
-    case 'repeat':
-      alert.textContent = 'This channel is already added to feed';
-      break;
-    case 'badnetwork':
-      alert.textContent = 'Unable to update RSS feed';
-      break;
-    default:
-      break;
-  }
+  alert.textContent = i18next.t(`errors.${error}`);
 
   alert.classList.add('show');
   setTimeout(() => {
