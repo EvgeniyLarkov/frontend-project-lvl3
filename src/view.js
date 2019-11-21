@@ -1,15 +1,16 @@
 import i18next from 'i18next';
-import Backend from 'i18next-xhr-backend';
-import LanguageDetector from 'i18next-browser-languagedetector';
+import languageDetector from 'i18next-browser-languagedetector';
+import backend from 'i18next-xhr-backend';
 import { renderChannel, renderChannelNews } from './renders';
 
 i18next
-  .use(Backend)
-  .use(LanguageDetector)
+  .use(languageDetector)
+  .use(backend)
   .init({
     fallbackLng: 'en',
+    debug: false,
     backend: {
-      loadPath: `${__dirname}locales/{{lng}}/locale.json`,
+      loadPath: `${window.location.pathname}locales/{{lng}}/locale.json`,
     },
   });
 
