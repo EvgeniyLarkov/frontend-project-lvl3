@@ -20,6 +20,10 @@ module.exports = {
         test: /\.css$/,
         use: ['style-loader', 'css-loader'],
       },
+      {
+        test: /locales/,
+        loader: '@alienfast/i18next-loader',
+      },
     ],
   },
   plugins: [

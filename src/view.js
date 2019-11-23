@@ -1,17 +1,13 @@
 import i18next from 'i18next';
 import languageDetector from 'i18next-browser-languagedetector';
-import backend from 'i18next-xhr-backend';
+import resources from '../locales';
 import { renderChannel, renderChannelNews } from './renders';
 
 i18next
   .use(languageDetector)
-  .use(backend)
   .init({
     fallbackLng: 'en',
-    debug: false,
-    backend: {
-      loadPath: `${window.location.pathname}locales/{{lng}}/locale.json`,
-    },
+    resources,
   });
 
 export const renderInputForm = (state) => {

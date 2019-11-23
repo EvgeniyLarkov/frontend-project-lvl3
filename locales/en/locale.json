@@ -1,7 +1,9 @@
 {
-  "errors": {
-    "notExist": "URL is invalid or do not exist",
-    "repeat":  "This channel is already added to feed",
-    "badNetwork": "Unable to update RSS feed",
-  }
+   "translation":{
+      "errors":{
+         "notExist":"URL is invalid or do not exist",
+         "repeat":"This channel is already added to feed",
+         "badNetwork":"Unable to update RSS feed"
+      }
+   }
 }
