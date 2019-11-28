@@ -4,6 +4,7 @@ import { getRssFeed, updateRssFeed, formatData } from './utils';
 import parseData from './parser';
 
 export const validateInput = (state, event) => {
+  console.log(state.registrationProcess.state);
   if (state.registrationProcess.state === 'processing') {
     return;
   }
@@ -46,6 +47,7 @@ export const addChannel = (state, updateInterval) => {
     updateRssFeed(state, url, updateInterval);
   })
     .catch(() => {
+      state.registrationProcess.state = 'processed';
       state.errors.push('notExist');
     });
 };
