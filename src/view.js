@@ -1,14 +1,5 @@
-import i18next from 'i18next';
-import languageDetector from 'i18next-browser-languagedetector';
-import resources from '../locales';
 import { renderChannel, renderChannelNews } from './renders';
-
-i18next
-  .use(languageDetector)
-  .init({
-    fallbackLng: 'en',
-    resources,
-  });
+import i18n from './i18n';
 
 export const renderInputForm = (state) => {
   const rssInput = document.getElementById('rssInput');
@@ -25,43 +16,47 @@ export const renderInputForm = (state) => {
       rssInput.classList.remove('border-warning');
       break;
     default:
+      rssSubmitButton.setAttribute('disabled', '');
+      rssInput.classList.add('border-warning');
       break;
   }
 };
 
-export const addChannelHandler = (state, newvalue) => {
-  const renderedChannel = renderChannel(newvalue);
+export const addChannelHandler = (state, newValue) => {
+  const renderedChannel = renderChannel(newValue);
   const feedField = document.getElementById('feedField');
   feedField.prepend(renderedChannel);
 };
 
-export const addNewsHandler = (state, newvalue) => {
-  const newsContainer = document.getElementById(newvalue.parent);
+export const addNewsHandler = (state, newValue) => {
+  const newsContainer = document.getElementById(newValue.parent);
   const newsField = newsContainer.querySelector('ul');
-  const renderedNews = renderChannelNews(newvalue);
+  const renderedNews = renderChannelNews(newValue);
   newsField.prepend(renderedNews);
 };
 
-export const activateModalHandler = (state) => {
+export const openModalHandler = (state) => {
   const modalWindow = document.getElementById('modalWindow');
   const modalWindowLabel = modalWindow.querySelector('#modalWindowLabel');
   const modalWindowDescripiton = modalWindow.querySelector('#modalWindowDescripiton');
 
   switch (state.showNewsProcess.state) {
-    case 'disabled':
+    case 'closed':
       break;
-    case 'enabled':
+    case 'open':
       modalWindowLabel.textContent = state.showNewsProcess.title;
       modalWindowDescripiton.textContent = state.showNewsProcess.description;
       break;
     default:
+      modalWindowLabel.textContent = '';
+      modalWindowDescripiton.textContent = '';
       break;
   }
 };
 
 export const renderAlert = (error) => {
   const alert = document.getElementById('alert');
-  alert.textContent = i18next.t(`errors.${error}`);
+  alert.textContent = i18n.t(`errors.${error}`);
 
   alert.classList.add('show');
   setTimeout(() => {

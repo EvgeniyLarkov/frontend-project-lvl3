@@ -3,12 +3,12 @@ import { isURL } from 'validator';
 import { getRssFeed, updateRssFeed } from './utils';
 import parseData from './parser';
 
-export const validateInput = (state, element) => {
+export const validateInput = (state, event) => {
   if (state.registrationProcess.state === 'processing') {
     return;
   }
 
-  state.validationProcess.value = element.target.value;
+  state.validationProcess.value = event.target.value;
   state.registrationProcess.state = 'filling';
   const link = state.validationProcess.value;
 
@@ -32,32 +32,49 @@ export const addChannel = (state, updateInterval) => {
   const url = state.validationProcess.value;
 
   getRssFeed(url).then((data) => {
-    const {
-      channelDescription, channelNews, channelTitle, channelLink,
-    } = parseData(data);
+    const feed = parseData(data);
+    const channel = feed.querySelector('channel');
+    const channelLink = channel.querySelector('link');
+    const channelTitle = channel.querySelector('title');
+    const channelDescription = channel.querySelector('description');
+    const channelItems = channel.querySelectorAll('item');
+    const channelNews = [...channelItems].map((item) => {
+      const title = item.querySelector('title');
+      const link = item.querySelector('link');
+      const description = item.querySelector('description');
+      return {
+        title: title.textContent,
+        link: link.textContent,
+        description: description.textContent,
+        parent: channelLink.textContent,
+      };
+    });
+
     state.feeds.push({
-      channelTitle, channelDescription, channelLink, channelUrl: url,
+      channelTitle: channelTitle.textContent,
+      channelDescription: channelDescription.textContent,
+      channelLink: channelLink.textContent,
+      channelUrl: url,
     });
     channelNews.reverse().forEach(item => state.news.push(item));
+    state.registrationProcess.state = 'processed';
+    state.validationProcess.value = '';
     updateRssFeed(state, url, updateInterval);
   })
-    .then(() => { state.registrationProcess.state = 'processed'; })
     .catch(() => {
       state.errors.push('notExist');
     });
-
-  state.validationProcess.value = '';
 };
 
-export const activateModalWindow = (state, element) => {
-  if (!(element.target.dataset.target === '#modalWindow')) {
+export const openModalWindow = (state, event) => {
+  if (!(event.target.dataset.target === '#modalWindow')) {
     return;
   }
-  state.showNewsProcess.title = element.target.dataset.title;
-  state.showNewsProcess.description = element.target.dataset.description;
-  state.showNewsProcess.state = 'enabled';
+  state.showNewsProcess.title = event.target.dataset.title;
+  state.showNewsProcess.description = event.target.dataset.description;
+  state.showNewsProcess.state = 'open';
 };
 
-export const disableModalWindow = (state) => {
-  state.showNewsProcess.type = 'disabled';
+export const closeModalWindow = (state) => {
+  state.showNewsProcess.type = 'closed';
 };

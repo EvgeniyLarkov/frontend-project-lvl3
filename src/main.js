@@ -2,10 +2,10 @@ import 'bootstrap/js/src/modal';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import { watch } from 'melanke-watchjs';
 import {
-  addChannel, activateModalWindow, disableModalWindow, validateInput,
+  addChannel, openModalWindow, closeModalWindow, validateInput,
 } from './controller';
 import {
-  renderInputForm, addChannelHandler, addNewsHandler, activateModalHandler, renderAlert,
+  renderInputForm, addChannelHandler, addNewsHandler, openModalHandler, renderAlert,
 } from './view';
 
 export default () => {
@@ -15,17 +15,17 @@ export default () => {
       state: 'invalid',
       value: '',
     },
-    registrationProcess: { // inputRss
+    registrationProcess: {
       state: 'filling',
     },
     showNewsProcess: {
-      state: 'disabled',
+      state: 'closed',
       title: '',
       description: '',
     },
     feeds: [],
     news: [],
-    errors: [], // alert
+    errors: [],
   };
 
   const rssInput = document.getElementById('rssInput');
@@ -34,17 +34,17 @@ export default () => {
   const dismissModalButton = modalWindow.querySelector('[data-dismiss=modal]');
   const feedField = document.getElementById('feedField');
 
-  rssInput.addEventListener('input', element => validateInput(state, element));
-  rssInputForm.addEventListener('submit', (element) => {
-    element.preventDefault();
+  rssInput.addEventListener('input', event => validateInput(state, event));
+  rssInputForm.addEventListener('submit', (event) => {
+    event.preventDefault();
     addChannel(state, updateInterval);
   });
-  feedField.addEventListener('click', element => activateModalWindow(state, element));
-  dismissModalButton.addEventListener('click', () => disableModalWindow(state));
+  feedField.addEventListener('click', event => openModalWindow(state, event));
+  dismissModalButton.addEventListener('click', () => closeModalWindow(state));
 
   watch(state, 'validationProcess', () => renderInputForm(state));
-  watch(state, 'feeds', (prop, action, newvalue) => addChannelHandler(state, newvalue));
-  watch(state, 'news', (prop, action, newvalue) => addNewsHandler(state, newvalue));
-  watch(state, 'showNewsProcess', () => activateModalHandler(state));
-  watch(state, 'errors', (prop, action, newvalue) => renderAlert(newvalue));
+  watch(state, 'feeds', (prop, action, newValue) => addChannelHandler(state, newValue));
+  watch(state, 'news', (prop, action, newValue) => addNewsHandler(state, newValue));
+  watch(state, 'showNewsProcess', () => openModalHandler(state));
+  watch(state, 'errors', (prop, action, newValue) => renderAlert(newValue));
 };
