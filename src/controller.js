@@ -1,6 +1,6 @@
 /* eslint no-param-reassign: 0 */
 import { isURL } from 'validator';
-import { getRssFeed, updateRssFeed } from './utils';
+import { getRssFeed, updateRssFeed, formatData } from './utils';
 import parseData from './parser';
 
 export const validateInput = (state, event) => {
@@ -33,28 +33,12 @@ export const addChannel = (state, updateInterval) => {
 
   getRssFeed(url).then((data) => {
     const feed = parseData(data);
-    const channel = feed.querySelector('channel');
-    const channelLink = channel.querySelector('link');
-    const channelTitle = channel.querySelector('title');
-    const channelDescription = channel.querySelector('description');
-    const channelItems = channel.querySelectorAll('item');
-    const channelNews = [...channelItems].map((item) => {
-      const title = item.querySelector('title');
-      const link = item.querySelector('link');
-      const description = item.querySelector('description');
-      return {
-        title: title.textContent,
-        link: link.textContent,
-        description: description.textContent,
-        parent: channelLink.textContent,
-      };
-    });
+    const {
+      channelDescription, channelNews, channelTitle, channelLink,
+    } = formatData(feed);
 
     state.feeds.push({
-      channelTitle: channelTitle.textContent,
-      channelDescription: channelDescription.textContent,
-      channelLink: channelLink.textContent,
-      channelUrl: url,
+      channelTitle, channelDescription, channelLink, channelUrl: url,
     });
     channelNews.reverse().forEach(item => state.news.push(item));
     state.registrationProcess.state = 'processed';

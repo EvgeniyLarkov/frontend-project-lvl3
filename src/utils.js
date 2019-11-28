@@ -6,24 +6,37 @@ import parseData from './parser';
 export const getRssFeed = rssUrl => axios.get(`https://misty-bread-6389.jlarkov.workers.dev/?${rssUrl}`)
   .then(response => response.data);
 
+export const formatData = (data) => {
+  const channel = data.querySelector('channel');
+  const channelLink = channel.querySelector('link');
+  const channelTitle = channel.querySelector('title');
+  const channelDescription = channel.querySelector('description');
+  const channelItems = channel.querySelectorAll('item');
+  const channelNews = [...channelItems].map((item) => {
+    const title = item.querySelector('title');
+    const link = item.querySelector('link');
+    const description = item.querySelector('description');
+    return {
+      title: title.textContent,
+      link: link.textContent,
+      description: description.textContent,
+      parent: channelLink.textContent,
+    };
+  });
+
+  return {
+    channelLink: channelLink.textContent,
+    channelDescription: channelDescription.textContent,
+    channelNews,
+    channelTitle: channelTitle.textContent,
+  };
+};
+
 export const updateRssFeed = (state, url, updateInterval) => {
   setTimeout(() => {
     getRssFeed(url).then((data) => {
       const feed = parseData(data);
-      const channel = feed.querySelector('channel');
-      const channelLink = channel.querySelector('link');
-      const channelItems = channel.querySelectorAll('item');
-      const channelNews = [...channelItems].map((item) => {
-        const title = item.querySelector('title');
-        const link = item.querySelector('link');
-        const description = item.querySelector('description');
-        return {
-          title: title.textContent,
-          link: link.textContent,
-          description: description.textContent,
-          parent: channelLink.textContent,
-        };
-      });
+      const { channelNews } = formatData(feed);
 
       const newNews = differenceBy(channelNews, state.news, a => `${a.title}${a.parent}`);
       if (newNews.length === 0) {
