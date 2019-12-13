@@ -15,12 +15,12 @@ export const renderChannelNews = (data) => {
 export const renderChannel = (data) => {
   const div = document.createElement('div');
   div.classList.add('jumbotron', 'col-md-4');
-  div.setAttribute('id', data.channelLink);
+  div.setAttribute('id', data.url);
   div.innerHTML = `
-  <h3>${data.channelTitle}</h3>
-  <p class="lead">${data.channelDescription}</p>
+  <h3>${data.title}</h3>
+  <p class="lead">${data.description}</p>
   <hr class="my-3">
-  <ul class='list-group' id="channelNews"></ul>
+  <ul class='list-group'></ul>
   `;
 
   return div;

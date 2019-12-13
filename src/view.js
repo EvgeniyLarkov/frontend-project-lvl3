@@ -29,7 +29,7 @@ export const addChannelHandler = (state, newValue) => {
 };
 
 export const addNewsHandler = (state, newValue) => {
-  const newsContainer = document.getElementById(newValue.parent);
+  const newsContainer = document.getElementById(newValue.url);
   const newsField = newsContainer.querySelector('ul');
   const renderedNews = renderChannelNews(newValue);
   newsField.prepend(renderedNews);

@@ -1,10 +1,9 @@
 /* eslint no-param-reassign: 0 */
 import { isURL } from 'validator';
-import { getRssFeed, updateRssFeed, formatData } from './utils';
+import { getRssFeed, updateRssFeed } from './utils';
 import parseData from './parser';
 
 export const validateInput = (state, event) => {
-  console.log(state.registrationProcess.state);
   if (state.registrationProcess.state === 'processing') {
     return;
   }
@@ -13,7 +12,7 @@ export const validateInput = (state, event) => {
   state.registrationProcess.state = 'filling';
   const link = state.validationProcess.value;
 
-  if (state.feeds.find(item => item.channelUrl === link)) {
+  if (state.feeds.find(item => item.url === link)) {
     state.validationProcess.state = 'invalid';
     state.errors.push('repeat');
     return;
@@ -33,15 +32,18 @@ export const addChannel = (state, updateInterval) => {
   const url = state.validationProcess.value;
 
   getRssFeed(url).then((data) => {
-    const feed = parseData(data);
     const {
-      channelDescription, channelNews, channelTitle, channelLink,
-    } = formatData(feed);
+      description, news, title, link,
+    } = parseData(data);
 
     state.feeds.push({
-      channelTitle, channelDescription, channelLink, channelUrl: url,
+      title, description, link, url,
     });
-    channelNews.reverse().forEach(item => state.news.push(item));
+
+    news.reverse().forEach((item) => {
+      const newsItem = { ...item, url };
+      state.news.push(newsItem);
+    });
     state.registrationProcess.state = 'processed';
     state.validationProcess.value = '';
     updateRssFeed(state, url, updateInterval);
