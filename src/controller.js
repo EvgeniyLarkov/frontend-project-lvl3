@@ -60,7 +60,7 @@ export const openModalWindow = (state, event) => {
   }
   state.showNewsProcess.title = event.target.dataset.title;
   state.showNewsProcess.description = event.target.dataset.description;
-  state.showNewsProcess.state = 'open';
+  state.showNewsProcess.state = 'opened';
 };
 
 export const closeModalWindow = (state) => {

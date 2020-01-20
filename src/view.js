@@ -43,7 +43,7 @@ export const openModalHandler = (state) => {
   switch (state.showNewsProcess.state) {
     case 'closed':
       break;
-    case 'open':
+    case 'opened':
       modalWindowLabel.textContent = state.showNewsProcess.title;
       modalWindowDescripiton.textContent = state.showNewsProcess.description;
       break;

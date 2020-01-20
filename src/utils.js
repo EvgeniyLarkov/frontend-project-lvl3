@@ -20,9 +20,10 @@ export const updateRssFeed = (state, url, updateInterval) => {
         state.news.push(newsItem);
       });
     })
-      .then(() => updateRssFeed(state, url, updateInterval))
       .catch(() => {
         state.errors.push('badNetwork');
+      })
+      .finally(() => {
         updateRssFeed(state, url, updateInterval);
       });
   }, updateInterval);
